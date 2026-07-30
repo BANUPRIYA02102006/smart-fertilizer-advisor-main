@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>🌱 Smart Fertilizer Advisor</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}"/>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,800;1,600&family=Nunito:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body>
+
+  <div class="bg-layer">
+    <div class="leaf leaf1">🌿</div><div class="leaf leaf2">🍃</div>
+    <div class="leaf leaf3">🌾</div><div class="leaf leaf4">🍀</div>
+    <div class="leaf leaf5">🌱</div><div class="leaf leaf6">🍃</div>
+    <div class="leaf leaf7">🌿</div>
+  </div>
+
+  <!-- HEADER -->
+  <header>
+    <div class="header-inner">
+      <div class="logo-area">
+        <div class="logo-icon">🌾</div>
+        <div>
+          <div class="logo-badge">AI-Powered • Free • Smart</div>
+          <h1 id="appTitle">Smart Fertilizer<br/><em>Advisor</em></h1>
+          <p class="tagline" id="appTagline">Enter your soil data — get expert AI recommendation instantly</p>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:10px;align-items:flex-end">
+        <div class="lang-toggle">
+          <button class="lang-btn active" onclick="setLang('en')" id="btnEn">🇬🇧 English</button>
+          <button class="lang-btn" onclick="setLang('ta')" id="btnTa">🇮🇳 தமிழ்</button>
+        </div>
+        <div class="weather-card">
+          <div class="weather-icon" id="weatherIcon">🌤</div>
+          <div class="weather-info">
+            <div class="weather-temp" id="weatherTemp">--°C</div>
+            <div class="weather-desc" id="weatherDesc" data-en="Loading..." data-ta="ஏற்றுகிறது...">Loading...</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- LOCATION BAR -->
+  <div class="location-bar">
+    <span class="loc-icon">📍</span>
+    <span id="locationText" data-en="Detecting your location..." data-ta="உங்கள் இடத்தை கண்டறிகிறோம்...">Detecting your location...</span>
+    <span class="loc-crops" id="locationCrops"></span>
+  </div>
+
+  <!-- CROP CHIPS -->
+  <div class="crop-icons-row">
+    <div class="crop-chip active" onclick="selectCrop('rice',this)"><span>🌾</span> <span class="crop-name" data-en="Rice" data-ta="அரிசி">Rice</span></div>
+    <div class="crop-chip" onclick="selectCrop('wheat',this)"><span>🌿</span> <span class="crop-name" data-en="Wheat" data-ta="கோதுமை">Wheat</span></div>
+    <div class="crop-chip" onclick="selectCrop('maize',this)"><span>🌽</span> <span class="crop-name" data-en="Maize" data-ta="மக்காச்சோளம்">Maize</span></div>
+    <div class="crop-chip" onclick="selectCrop('sugarcane',this)"><span>🎋</span> <span class="crop-name" data-en="Sugarcane" data-ta="கரும்பு">Sugarcane</span></div>
+    <div class="crop-chip" onclick="selectCrop('cotton',this)"><span>☁️</span> <span class="crop-name" data-en="Cotton" data-ta="பருத்தி">Cotton</span></div>
+    <div class="crop-chip" onclick="selectCrop('groundnut',this)"><span>🥜</span> <span class="crop-name" data-en="Groundnut" data-ta="நிலக்கடலை">Groundnut</span></div>
+    <div class="crop-chip" onclick="selectCrop('tomato',this)"><span>🍅</span> <span class="crop-name" data-en="Tomato" data-ta="தக்காளி">Tomato</span></div>
+    <div class="crop-chip" onclick="selectCrop('onion',this)"><span>🧅</span> <span class="crop-name" data-en="Onion" data-ta="வெங்காயம்">Onion</span></div>
+    <div class="crop-chip" onclick="selectCrop('banana',this)"><span>🍌</span> <span class="crop-name" data-en="Banana" data-ta="வாழை">Banana</span></div>
+    <div class="crop-chip" onclick="selectCrop('potato',this)"><span>🥔</span> <span class="crop-name" data-en="Potato" data-ta="உருளைக்கிழங்கு">Potato</span></div>
+  </div>
+
+  <main>
+    <input type="hidden" id="crop" value="rice"/>
+
+    <!-- TOP HALF: LEFT + RIGHT -->
+    <div class="form-grid-main">
+
+      <!-- LEFT COLUMN -->
+      <div class="left-col">
+        <!-- Soil Profile -->
+        <div class="glass-card">
+          <div class="card-header"><span class="card-icon">🪱</span><span class="card-title" data-en="Soil Profile" data-ta="மண் விவரம்">Soil Profile</span></div>
+          <div class="form-row">
+            <div class="form-group">
+              <label data-en="Soil Type" data-ta="மண் வகை">Soil Type</label>
+              <select id="soil">
+                <option value="loamy" data-en="🟫 Loamy" data-ta="🟫 களிமண்">🟫 Loamy</option>
+                <option value="clay" data-en="🟤 Clay" data-ta="🟤 செம்மண்">🟤 Clay</option>
+                <option value="sandy" data-en="🟡 Sandy" data-ta="🟡 மணல் மண்">🟡 Sandy</option>
+                <option value="silty" data-en="⬜ Silty" data-ta="⬜ வண்டல் மண்">⬜ Silty</option>
+                <option value="red" data-en="🔴 Red Soil" data-ta="🔴 சிவப்பு மண்">🔴 Red Soil</option>
+                <option value="black" data-en="⬛ Black Soil" data-ta="⬛ கருப்பு மண்">⬛ Black / Vertisol</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label data-en="Previous Crop" data-ta="முந்தைய பயிர்">Previous Crop</label>
+              <select id="prev">
+                <option value="legume" data-en="🫘 Legume" data-ta="🫘 பயறு வகை">🫘 Legume</option>
+                <option value="cereal" data-en="🌾 Cereal" data-ta="🌾 தானியம்">🌾 Cereal</option>
+                <option value="fallow" data-en="🏜️ Fallow" data-ta="🏜️ தரிசு">🏜️ Fallow</option>
+                <option value="vegetable" data-en="🥦 Vegetables" data-ta="🥦 காய்கறிகள்">🥦 Vegetables</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Nutrients -->
+        <div class="glass-card">
+          <div class="card-header"><span class="card-icon">🧪</span><span class="card-title" data-en="Soil Nutrients (kg/ha)" data-ta="மண் ஊட்டச்சத்துக்கள் (kg/ha)">Soil Nutrients (kg/ha)</span></div>
+          <div class="nutrient-slider">
+            <div class="slider-header">
+              <span class="nutrient-label n-label">🟢 <span data-en="Nitrogen (N)" data-ta="நைட்ரஜன் (N)">Nitrogen (N)</span></span>
+              <span class="slider-val" id="nv">60</span>
+            </div>
+            <input type="range" id="n" min="0" max="200" value="60" class="slider n-slider" oninput="document.getElementById('nv').textContent=this.value;updateHealthMeter()"/>
+          </div>
+          <div class="nutrient-slider">
+            <div class="slider-header">
+              <span class="nutrient-label p-label">🔵 <span data-en="Phosphorus (P)" data-ta="பாஸ்பரஸ் (P)">Phosphorus (P)</span></span>
+              <span class="slider-val" id="pv">30</span>
+            </div>
+            <input type="range" id="p" min="0" max="100" value="30" class="slider p-slider" oninput="document.getElementById('pv').textContent=this.value;updateHealthMeter()"/>
+          </div>
+          <div class="nutrient-slider">
+            <div class="slider-header">
+              <span class="nutrient-label k-label">🟠 <span data-en="Potassium (K)" data-ta="பொட்டாசியம் (K)">Potassium (K)</span></span>
+              <span class="slider-val" id="kv">80</span>
+            </div>
+            <input type="range" id="k" min="0" max="200" value="80" class="slider k-slider" oninput="document.getElementById('kv').textContent=this.value;updateHealthMeter()"/>
+          </div>
+          <div class="nutrient-slider">
+            <div class="slider-header">
+              <span class="nutrient-label ph-label">⚗️ <span data-en="Soil pH" data-ta="மண் pH">Soil pH</span></span>
+              <span class="slider-val" id="phv">6.5</span>
+            </div>
+            <input type="range" id="ph" min="40" max="90" value="65" class="slider ph-slider" oninput="document.getElementById('phv').textContent=(this.value/10).toFixed(1);updateHealthMeter()"/>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT COLUMN -->
+      <div class="right-col">
+        <!-- Field Conditions -->
+        <div class="glass-card">
+          <div class="card-header"><span class="card-icon">🌦️</span><span class="card-title" data-en="Field Conditions" data-ta="வயல் நிலைமைகள்">Field Conditions</span></div>
+          <div class="form-row" style="grid-template-columns:1fr 1fr 1fr">
+            <div class="form-group">
+              <label data-en="Rainfall" data-ta="மழைப்பொழிவு">Rainfall</label>
+              <select id="rain">
+                <option value="low" data-en="🌵 Low" data-ta="🌵 குறைவு">🌵 Low</option>
+                <option value="medium" selected data-en="🌤️ Medium" data-ta="🌤️ நடுத்தரம்">🌤️ Medium</option>
+                <option value="high" data-en="🌧️ High" data-ta="🌧️ அதிகம்">🌧️ High</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label data-en="Irrigation" data-ta="நீர்ப்பாசனம்">Irrigation</label>
+              <select id="irrig">
+                <option value="yes" data-en="💧 Available" data-ta="💧 உள்ளது">💧 Available</option>
+                <option value="no" data-en="🏜️ Not Available" data-ta="🏜️ இல்லை">🏜️ Not Available</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label data-en="Growth Stage" data-ta="வளர்ச்சி நிலை">Growth Stage</label>
+              <select id="stage">
+                <option value="sowing" data-en="🌱 Pre-sowing" data-ta="🌱 விதைப்பு முன்">🌱 Pre-sowing</option>
+                <option value="vegetative" data-en="🌿 Vegetative" data-ta="🌿 தாவர வளர்ச்சி">🌿 Vegetative</option>
+                <option value="flowering" data-en="🌸 Flowering" data-ta="🌸 பூக்கும் நிலை">🌸 Flowering</option>
+                <option value="maturity" data-en="🌾 Maturity" data-ta="🌾 முதிர்ச்சி">🌾 Maturity</option>
+              </select>
+            </div>
+          </div>
+          <div class="weather-advice-box" id="weatherAdviceBox" style="display:none">
+            <div class="card-header" style="margin-top:12px">
+              <span class="card-icon">🌦️</span>
+              <span class="card-title" data-en="Weather-Based Fertilizer Timing" data-ta="வானிலை அடிப்படையிலான உர நேரம்">Weather-Based Fertilizer Timing</span>
+            </div>
+            <div class="weather-tip" id="weatherTip"></div>
+          </div>
+        </div>
+
+        <!-- Soil Health Meter -->
+        <div class="glass-card">
+          <div class="card-header"><span class="card-icon">💚</span><span class="card-title" data-en="Soil Health Meter" data-ta="மண் ஆரோக்கிய மீட்டர்">Soil Health Meter</span></div>
+          <div class="health-meter">
+            <div class="meter-circle" id="meterCircle">
+              <div class="meter-val" id="meterVal">--</div>
+              <div class="meter-label" data-en="Score" data-ta="மதிப்பெண்">Score</div>
+            </div>
+            <div class="meter-legend">
+              <div class="legend-item"><span style="color:#e74c3c">●</span> <span data-en="Poor (0–40)" data-ta="மோசம் (0–40)">Poor (0–40)</span></div>
+              <div class="legend-item"><span style="color:#f39c12">●</span> <span data-en="Fair (40–70)" data-ta="சாதாரணம் (40–70)">Fair (40–70)</span></div>
+              <div class="legend-item"><span style="color:#27ae60">●</span> <span data-en="Good (70–100)" data-ta="நல்லது (70–100)">Good (70–100)</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FULL WIDTH BUTTON -->
+    <button class="cta-btn" onclick="getRecommendation()">
+      <span class="btn-icon">🌿</span>
+      <span class="btn-text" data-en="Get Fertilizer Recommendation" data-ta="உர பரிந்துரை பெறுங்கள்">Get Fertilizer Recommendation</span>
+      <span class="btn-arrow">→</span>
+    </button>
+
+    <!-- FULL WIDTH RESULT -->
+    <div class="result-section" id="resultSection">
+      <div class="confetti-row" id="confetti"></div>
+      <div class="result-header">
+        <div class="result-badge" data-en="✅ Recommendation Ready" data-ta="✅ பரிந்துரை தயார்">✅ Recommendation Ready</div>
+        <h2 class="result-title" id="fertName">—</h2>
+        <p class="result-dose" id="fertDose">—</p>
+      </div>
+      <div class="warn-box" id="warnBox" style="display:none"></div>
+
+      <!-- FULL WIDTH RESULT GRID -->
+      <div class="result-grid-full">
+        <div class="glass-card">
+          <div class="card-header"><span class="card-icon">📊</span><span class="card-title" data-en="Nutrient Status" data-ta="ஊட்டச்சத்து நிலை">Nutrient Status</span></div>
+          <div id="nutriBars"></div>
+        </div>
+        <div class="glass-card">
+          <div class="card-header"><span class="card-icon">💡</span><span class="card-title" data-en="Quick Tips" data-ta="விரைவு குறிப்புகள்">Quick Tips</span></div>
+          <div class="tip-grid" id="tipGrid"></div>
+        </div>
+      </div>
+
+      <!-- FULL WIDTH AI ADVICE -->
+      <div class="glass-card ai-card">
+        <div class="card-header">
+          <span class="card-icon">🤖</span>
+          <span class="card-title" data-en="AI Agronomist Advice" data-ta="AI வேளாண் நிபுணர் ஆலோசனை">AI Agronomist Advice</span>
+          <span class="ai-badge" data-en="Powered by AI" data-ta="AI மூலம்">Powered by AI</span>
+        </div>
+        <div class="ai-response" id="aiResp"><span class="thinking">🌿 Waiting...</span></div>
+      </div>
+
+      <!-- FULL WIDTH PDF BUTTON -->
+      <button class="pdf-btn" onclick="downloadPDF()" id="pdfBtn" style="display:none">
+        📄 <span data-en="Download PDF Report" data-ta="PDF அறிக்கை பதிவிறக்கவும்">Download PDF Report</span>
+      </button>
+    </div>
+  </main>
+
+  <footer>
+    <p>🌱 Smart Fertilizer Advisor • 🐍 <span data-en="Powered by Python Flask" data-ta="Python Flask மூலம்">Powered by Python Flask</span> • <span data-en="Built with ❤️ for Indian Farmers" data-ta="இந்திய விவசாயிகளுக்காக ❤️">Built with ❤️ for Indian Farmers</span></p>
+  </footer>
+
+  <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>
